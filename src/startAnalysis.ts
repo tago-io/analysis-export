@@ -1,6 +1,7 @@
-import { Account, Analysis, Utils } from "@tago-io/sdk";
+import { Account, Analysis, Services, Utils } from "@tago-io/sdk";
 import { Data } from "@tago-io/sdk/out/common/common.types";
 import { TagoContext } from "@tago-io/sdk/out/modules/Analysis/analysis.types";
+import axios from "axios";
 import { EntityType, IExport, IExportHolder } from "./exportTypes";
 import auditLogSetup from "./lib/auditLogSetup";
 import validation from "./lib/validation";
@@ -36,6 +37,18 @@ const config: IExport = {
 };
 
 const IMPORT_ORDER: EntityType = ["devices", "analysis", "dashboards", "accessManagement", "run_buttons", "actions", "dictionaries"];
+
+async function sendNotification(token: string, message: string) {
+  axios({
+    method: "POST",
+    url: "https://api.tago.io/notification",
+    data: {
+      title: "Importing application",
+      message,
+    },
+    headers: { Authorization: config.import.token },
+  });
+}
 
 async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
   const environment = Utils.envToJson(context.environment);
@@ -116,6 +129,7 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
 
   const auditlog = auditLogSetup(account, config_dev, "export_log");
   auditlog(`Starting export to: ${import_acc_info.name}`);
+  sendNotification(config.import.token, "Starting the import proccess. Please await, it can take up to 5 minutes.");
 
   try {
     validate("Exporting the application, this proccess can take several minutes...", "warning");
@@ -185,6 +199,8 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
     auditlog(`Error while exporting: ${e}`);
     throw validate(e, "danger");
   }
+
+  sendNotification(config.import.token, "The application was succesfully imported.");
 
   auditlog(`Export finished with success for: ${import_acc_info.name}`);
   validate("Application succesfully exported!", "success");
