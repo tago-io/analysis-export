@@ -21,7 +21,6 @@ async function deviceExport(account: Account, import_account: Account, export_ho
   for (const { id: device_id, tags: device_tags, name } of list) {
     console.info(`Exporting devices ${name}`);
     const device = await account.devices.info(device_id);
-    delete device.bucket;
 
     const export_id = device.tags.find((tag) => tag.key === "export_id")?.value;
 
@@ -31,6 +30,11 @@ async function deviceExport(account: Account, import_account: Account, export_ho
 
     let new_token: string;
     const new_device = replaceObj(device, export_holder.devices);
+
+    new_device.last_input = undefined;
+    new_device.last_output = undefined;
+    new_device.bucket = new_device.type;
+
     if (!target_id) {
       ({ device_id: target_id, token: new_token } = await import_account.devices.create(new_device));
 
