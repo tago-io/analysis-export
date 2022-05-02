@@ -2,7 +2,8 @@ import { Account } from "@tago-io/sdk";
 import config from "./config";
 import { EntityType } from "./exportTypes";
 
-const IMPORT_ORDER: EntityType = ["devices", "dictionaries", "accessManagement", "run_buttons", "analysis", "actions", "dictionaries"];
+const IMPORT_ORDER: EntityType = ["devices", "dashboards", "accessManagement", "run_buttons", "analysis", "actions", "dictionaries"];
+// const IMPORT_ORDER: EntityType = ["devices", "accessManagement", "analysis", "actions", "dictionaries"];
 
 async function startImport() {
   const import_account = new Account({ token: config.import.token });
@@ -14,11 +15,10 @@ async function startImport() {
     switch (item) {
       case "devices":
         console.info("Cleaning Devices");
-        const device_list = await import_account.devices.list({ amount: 999, fields: ["id", "bucket"] });
+        const device_list = await import_account.devices.list({ amount: 999, fields: ["id"] });
         await Promise.all(device_list.map(({ id }) => import_account.devices.delete(id)));
-        await Promise.all(device_list.map(({ bucket }) => import_account.buckets.delete(bucket)));
         break;
-      case "dictionaries":
+      case "dashboards":
         console.info("Cleaning Dashboards");
         const dash_list = await import_account.dashboards.list({ amount: 999, fields: ["id"] });
         await Promise.all(dash_list.map(({ id }) => import_account.dashboards.delete(id)));

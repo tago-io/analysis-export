@@ -13,10 +13,8 @@ interface IExportHolder {
 type Entity = "dashboards" | "devices" | "analysis";
 type EntityType = Array<"dashboards" | "devices" | "run_buttons" | "analysis" | "actions" | "dictionaries" | "accessManagement">;
 interface IExport {
-  export_tag: string;
   entities: EntityType;
   dictionary?: string[];
-  data?: string[],
   export: {
     token: string;
   };

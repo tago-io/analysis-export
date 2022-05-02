@@ -15,14 +15,6 @@ async function insertWidgets(account: Account, import_account: Account, dashboar
     const widget = widgets.find((wdgt) => widget_arrangement.widget_id === wdgt.id);
 
     const new_widget = replaceObj(widget, { ...export_holder.analysis, ...export_holder.devices, ...widget_holder });
-    if (new_widget.data) {
-      new_widget.data = new_widget.data.map((x: any) => {
-        if (x.qty) {
-          x.qty = Number(x.qty);
-        }
-        return x;
-      });
-    }
 
     const { widget: new_id } = await import_account.dashboards.widgets.create(target.id, new_widget);
     new_arrangement.push({ ...widget_arrangement, widget_id: new_id });

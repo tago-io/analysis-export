@@ -1,5 +1,6 @@
 import { Account } from "@tago-io/sdk";
 import { IExportHolder } from "../exportTypes";
+import filterExport from "../lib/filterExport";
 import replaceObj from "../lib/replaceObj";
 
 async function accessExport(account: Account, import_account: Account, export_holder: IExportHolder) {
