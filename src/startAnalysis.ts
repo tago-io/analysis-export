@@ -62,12 +62,12 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
 
   const main_account = new Account({ token: environment.account_token });
 
-  const config_dev = await Utils.getDevice(main_account, scope[0].origin);
+  const config_dev = await Utils.getDevice(main_account, scope[0].device);
   const validate = validation("export_validation", config_dev);
 
   const export_token = scope.find((x) => x.variable === "export_token");
   const target_token = scope.find((x) => x.variable === "target_token");
-  const entities = scope.find((x) => x.variable === "entity_list" && x.metadata?.sentValues);
+  const entities = scope.find((x) => x.variable === "entities" && x.metadata?.sentValues);
   const data_list = scope.find((x) => x.variable === "data_list");
   const export_tag = scope.find((x) => x.variable === "export_tag");
 
@@ -208,5 +208,5 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
 }
 
 export default new Analysis(startImport, {
-  token: "9a37a7d2-964e-4806-b8dd-06822c0f335c",
+  token: "f16369eb-5a59-4f9d-919b-0a5bc63fc7da",
 });

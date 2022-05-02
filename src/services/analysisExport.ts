@@ -26,7 +26,6 @@ async function analysisExport(account: Account, import_account: Account, export_
         tags: new_analysis.tags,
         active: new_analysis.active,
         variables: new_analysis.variables,
-        
       });
     }
     const script = await account.analysis.downloadScript(analysis_id);

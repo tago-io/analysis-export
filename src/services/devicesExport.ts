@@ -9,7 +9,7 @@ async function deviceExport(account: Account, import_account: Account, export_ho
 
   const list = await account.devices.list({
     amount: 99,
-    fields: ["id", "name", "tags"],
+    fields: ["id", "name", "tags", "type"],
     filter: { tags: [{ key: "export_id" }] },
   });
   const import_list = await import_account.devices.list({
@@ -33,7 +33,7 @@ async function deviceExport(account: Account, import_account: Account, export_ho
 
     new_device.last_input = undefined;
     new_device.last_output = undefined;
-    new_device.bucket = new_device.type;
+    new_device.bucket = undefined;
 
     if (!target_id) {
       ({ device_id: target_id, token: new_token } = await import_account.devices.create(new_device));

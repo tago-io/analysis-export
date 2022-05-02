@@ -45,7 +45,7 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "@tago-io/sdk": "^10.3.19",
+    "@tago-io/sdk": "^10.7.1",
     "axios": "0.24.0",
     "luxon": "^2.1.1"
   }
