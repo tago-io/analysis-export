@@ -18,19 +18,12 @@ async function runButtonsExport(account: Account, import_account: Account, expor
 
   const sidebar_buttons: ISidebarButton[] = run_info.sidebar_buttons;
   for (const btn of sidebar_buttons) {
-    if (btn.type !== "dashboard") {
-      continue;
-    }
+    if (btn.type !== "dashboard") continue;
 
     btn.value = export_holder.dashboards[btn.value as string];
   }
 
   import_run_info.sidebar_buttons = sidebar_buttons;
-
-  for (const template_name of Object.keys(run_info.email_templates)) {
-    const email_obj = run_info.email_templates[template_name];
-    import_run_info.email_templates[template_name] = email_obj;
-  }
   await import_account.run.edit(import_run_info);
 
   console.info("Run Buttons: finished");

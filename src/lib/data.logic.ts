@@ -9,9 +9,7 @@ interface GenericBody {
 }
 
 function parseTagoObject(body: GenericBody, serie?: string): DataToSend[] {
-  if (!serie) {
-    serie = String(new Date().getTime());
-  }
+  if (!serie) serie = String(new Date().getTime());
   return Object.keys(body)
     .map((item) => {
       return {

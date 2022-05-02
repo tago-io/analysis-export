@@ -21,13 +21,7 @@ async function analysisExport(account: Account, import_account: Account, export_
     if (!target_id) {
       ({ id: target_id } = await import_account.analysis.create(new_analysis));
     } else {
-      await import_account.analysis.edit(target_id, {
-        name: new_analysis.name,
-        tags: new_analysis.tags,
-        active: new_analysis.active,
-        variables: new_analysis.variables,
-        
-      });
+      await import_account.analysis.edit(target_id, new_analysis);
     }
     const script = await account.analysis.downloadScript(analysis_id);
     const script_base64 = await axios
