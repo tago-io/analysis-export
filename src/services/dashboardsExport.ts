@@ -57,7 +57,9 @@ async function dashboardExport(account: Account, import_account: Account, export
     console.info(`Exporting dashboard ${label}...`);
     const dashboard = await account.dashboards.info(dash_id);
     const export_id = dashboard.tags.find((tag) => tag.key === "export_id")?.value;
-    if (!export_id) continue;
+    if (!export_id) {
+      continue;
+    }
 
     const dash_target = await resolveDashboardTarget(import_account, export_id, import_list, dashboard);
 

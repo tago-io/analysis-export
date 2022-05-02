@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "./out",
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "module": "commonjs",
     "target": "ES2019",
     "lib": ["ES2019"],

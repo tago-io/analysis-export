@@ -18,9 +18,15 @@ async function actionsExport(account: Account, import_account: Account, export_h
 
     const new_action = replaceObj(action, { ...export_holder.devices, ...export_holder.analysis });
     for (const trigger of new_action.trigger) {
-      if (!trigger.value) delete trigger.value;
-      if (!trigger.second_value) delete trigger.second_value;
-      if (trigger.tag_key) delete trigger.unlock;
+      if (!trigger.value) {
+        delete trigger.value;
+      }
+      if (!trigger.second_value) {
+        delete trigger.second_value;
+      }
+      if (trigger.tag_key) {
+        delete trigger.unlock;
+      }
     }
 
     if (!target_id) {
