@@ -11,7 +11,7 @@ const config: IExport = {
   // Account that entities will be copied from.
   export: {
     // token: "0912bcff-51f1-46a1-b56c-94fd63bf6eb4", // Development
-    token: "19c43a65-dd50-49a7-9535-09038c2934d8", // Development
+    token: "", // Development
   },
 
   // Account where the entities will be pasted to.
