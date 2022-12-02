@@ -6,6 +6,7 @@
     "target": "ES2019",
     "lib": ["ES2019"],
     "allowJs": true,
+    "resolveJsonModule": true,
     "moduleResolution": "node",
     "esModuleInterop": true
   }
