@@ -94,7 +94,7 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
     config.entities = values as any;
   }
 
-  if (data_list?.value) {
+  if (data_list?.value && typeof data_list.value === "string") {
     const data = (data_list.value as string).replace(/ /g, "").split(",");
     config.data = data as any;
   }

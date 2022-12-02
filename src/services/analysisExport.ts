@@ -7,7 +7,7 @@ import replaceObj from "../lib/replaceObj";
 async function analysisExport(account: Account, import_account: Account, export_holder: IExportHolder) {
   console.info("Exporting analysis: started");
 
-  const list = await account.analysis.list({ amount: 99, fields: ["id", "name", "tags"], filter: { tags: [{ key: "export_id" }] } });
+  const list = await account.analysis.list({ amount: 99, fields: ["id", "name", "tags"], filter: { tags: [{ key: "export_id" }] } }).then((r) => r.reverse());
   const import_list = await import_account.analysis.list({ amount: 99, fields: ["id", "tags"], filter: { tags: [{ key: "export_id" }] } });
 
   for (const { id: analysis_id, name } of list) {

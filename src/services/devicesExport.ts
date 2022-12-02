@@ -31,11 +31,8 @@ async function deviceExport(account: Account, import_account: Account, export_ho
     let new_token: string;
     const new_device = replaceObj(device, export_holder.devices);
 
-    new_device.last_input = undefined;
-    new_device.last_output = undefined;
-    new_device.bucket = undefined;
-
     if (!target_id) {
+      console.log(new_device);
       ({ device_id: target_id, token: new_token } = await import_account.devices.create(new_device));
 
       if (config.data && config.data.length) {
@@ -52,9 +49,10 @@ async function deviceExport(account: Account, import_account: Account, export_ho
       }
     } else {
       await import_account.devices.edit(target_id, {
-        ...new_device,
-        connector: null,
-        network: null,
+        parse_function: new_device.parse_function,
+        tags: new_device.tags,
+        active: new_device.active,
+        visible: new_device.visible,
       });
       new_token = await Utils.getTokenByName(import_account, target_id);
     }

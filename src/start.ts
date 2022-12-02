@@ -30,7 +30,9 @@ async function startImport() {
 
   if (import_rule.includes("run_buttons")) {
     const run = await import_account.run.info();
-    if (!run || !run.name) throw "Exported account doesn't have RUN enabled. Not possible to import RUN Buttons.";
+    if (!run || !run.name) {
+      throw "Exported account doesn't have RUN enabled. Not possible to import RUN Buttons.";
+    }
   }
 
   const idCollection: EntityType = [];

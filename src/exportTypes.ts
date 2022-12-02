@@ -11,7 +11,7 @@ interface IExportHolder {
 }
 
 type Entity = "dashboards" | "devices" | "analysis";
-type EntityType = Array<"dashboards" | "devices" | "run_buttons" | "analysis" | "actions" | "dictionaries" | "accessManagement">;
+type EntityType = Array<"dashboards" | "devices" | "run_buttons" | "analysis" | "actions" | "dictionaries" | "accessManagement" | "connector">;
 interface IExport {
   export_tag: string;
   entities: EntityType;
