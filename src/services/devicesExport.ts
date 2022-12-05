@@ -30,9 +30,8 @@ async function deviceExport(account: Account, import_account: Account, export_ho
 
     let new_token: string;
     const new_device = replaceObj(device, export_holder.devices);
-
+    delete new_device.bucket;
     if (!target_id) {
-      console.log(new_device);
       ({ device_id: target_id, token: new_token } = await import_account.devices.create(new_device));
 
       if (config.data && config.data.length) {
