@@ -13,6 +13,13 @@ async function resolveDashboardTarget(import_account: Account, export_id: string
 
   if (import_dashboard) {
     const dashboard = await import_account.dashboards.info(import_dashboard.id);
+    await import_account.dashboards.edit(import_dashboard.id, {
+      blueprint_device_behavior: content.blueprint_device_behavior,
+      blueprint_devices: content.blueprint_devices,
+      blueprint_selector_behavior: content.blueprint_selector_behavior,
+      tabs: content.tabs,
+      tags: content.tags,
+    });
     return dashboard;
   }
 
