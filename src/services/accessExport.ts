@@ -1,4 +1,5 @@
 import { Account } from "@tago-io/sdk";
+
 import { IExportHolder } from "../exportTypes";
 import replaceObj from "../lib/replaceObj";
 
@@ -11,9 +12,9 @@ async function accessExport(account: Account, import_account: Account, export_ho
   for (const { id: access_id, tags: access_tags, name } of list) {
     console.info(`Exporting access rule ${name}`);
     const access = await account.accessManagement.info(access_id);
-    const export_id = access.tags.find((tag) => tag.key === "export_id")?.value;
+    const export_id = access_tags?.find((tag) => tag.key === "export_id")?.value;
 
-    let { id: target_id } = import_list.find((access) => access.tags.find((tag) => tag.key === "export_id" && tag.value == export_id)) || { id: null };
+    let { id: target_id } = import_list.find((access) => access.tags?.find((tag) => tag.key === "export_id" && tag.value == export_id)) || { id: null };
 
     const new_access = replaceObj(access, { ...export_holder.devices, ...export_holder.dashboards });
     if (!target_id) {
@@ -27,4 +28,4 @@ async function accessExport(account: Account, import_account: Account, export_ho
   return export_holder;
 }
 
-export default accessExport;
+export { accessExport };

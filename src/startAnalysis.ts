@@ -1,18 +1,19 @@
-import { Account, Analysis, Services, Utils } from "@tago-io/sdk";
+import { Account, Analysis, Utils } from "@tago-io/sdk";
 import { Data } from "@tago-io/sdk/out/common/common.types";
 import { TagoContext } from "@tago-io/sdk/out/modules/Analysis/analysis.types";
 import axios from "axios";
+
 import { EntityType, IExport, IExportHolder } from "./exportTypes";
 import auditLogSetup from "./lib/auditLogSetup";
 import validation from "./lib/validation";
-import accessExport from "./services/accessExport";
+import { accessExport } from "./services/accessExport";
 import actionsExport from "./services/actionsExport";
-import analysisExport from "./services/analysisExport";
+import { analysisExport } from "./services/analysisExport";
 import collectIDs from "./services/collectIDs";
 import dashboardExport from "./services/dashboardsExport";
-import deviceExport from "./services/devicesExport";
+import { deviceExport } from "./services/devicesExport";
 import dictionaryExport from "./services/dictionaryExport";
-import runButtonsExport from "./services/runButtonsExport";
+import { runButtonsExport } from "./services/runButtonsExport";
 
 const config: IExport = {
   // Export tag with unique ID's. Without tag bellow, entity will not be copied or updated.
@@ -51,6 +52,7 @@ async function sendNotification(token: string, message: string) {
 }
 
 async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
+  console.log(scope);
   const environment = Utils.envToJson(context.environment);
   if (!environment) {
     return;
@@ -75,15 +77,15 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
   config.import.token = target_token.value as string;
 
   if (!config.export.token) {
-    throw validate("Missing account application token field", "danger");
+    return Promise.reject(await validate("Missing account application token field", "danger"));
   } else if (config.export.token.length !== 36) {
-    throw validate('Invalid "account application token".', "danger");
+    return Promise.reject(await validate('Invalid "account application token".', "danger"));
   }
 
   if (!config.import.token) {
-    throw validate("Missing account token field", "danger");
+    return Promise.reject(await validate("Missing account token field", "danger"));
   } else if (config.import.token.length !== 36) {
-    throw validate('Invalid "account token".', "danger");
+    return Promise.reject(await validate('Invalid "account token".', "danger"));
   }
 
   const account = new Account({ token: config.export.token });
@@ -118,13 +120,13 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
   if (import_rule.includes("run_buttons")) {
     const run = await import_account.run.info();
     if (!run || !run.name) {
-      throw validate("The account doesn't have RUN enabled. Not possible to import RUN Buttons.", "danger");
+      return Promise.reject(await validate("The account doesn't have RUN enabled. Not possible to import RUN Buttons.", "danger"));
     }
   }
 
   const import_acc_info = await import_account.info();
   if (import_acc_info.plan === "free") {
-    throw validate("The account is free, can't import the application.", "danger");
+    return Promise.reject(await validate("The account is free, can't import the application.", "danger"));
   }
 
   const auditlog = auditLogSetup(account, config_dev, "export_log");
@@ -138,7 +140,7 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
     for (const entity of import_rule) {
       switch (entity) {
         case "devices":
-          export_holder = await deviceExport(account, import_account, export_holder);
+          export_holder = await deviceExport(account, import_account, export_holder, config);
           idCollection.push("devices");
           break;
         case "dashboards":
@@ -197,7 +199,7 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
     }
   } catch (e) {
     auditlog(`Error while exporting: ${e}`);
-    throw validate(e, "danger");
+    return Promise.reject(await validate(e, "danger"));
   }
 
   sendNotification(config.import.token, "The application was succesfully imported.");

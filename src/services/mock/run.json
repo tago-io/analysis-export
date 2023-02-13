@@ -1,6 +1,6 @@
 {
   "profile": "631f6a9c4f2f5200183d7273",
-  "url": "deltatrak.run.tago.io",
+  "url": "originTest.run.tago.io",
   "email_domain": "",
   "name": "FlashTrak",
   "sub_title": "Supply Chain Cloud Services",
@@ -309,7 +309,7 @@
   },
   "signin_buttons": [
     {
-      "url": "admin.tago.io/public/dashboard/63656d1df7cb62001163c3de/7fc36ee6-b0c8-43a3-97f2-ff6b7326fb26",
+      "url": "originTest.run.tago.io/dashboards/info/6387b32e5b570000112303fe?anonymousToken=00000000-6386-4535-8ccb-e400205c3058",
       "type": "link",
       "label": "Search Equipment"
     }

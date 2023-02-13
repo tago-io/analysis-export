@@ -8,10 +8,11 @@ describe("Collect ID", () => {
   test("Update Signin Buttons", () => {
     const copyTargetRun = cloneDeep(targetRunInfo);
     expect(copyTargetRun.signin_buttons.length).toBe(0);
+    expect(runInfo.signin_buttons[0].url).toBe("originTest.run.tago.io/dashboards/info/6387b32e5b570000112303fe?anonymousToken=00000000-6386-4535-8ccb-e400205c3058");
     updateSigninButtons(runInfo as any, copyTargetRun as any, exportHolder);
 
     expect(copyTargetRun.signin_buttons.length).toBe(1);
-    expect(copyTargetRun.signin_buttons[0].url).toBe("admin.tago.io/public/dashboard/73656d1df7cb62001163c3de/7fc36ee6-b0c8-43a3-97f2-ff6b7326fb26");
+    expect(copyTargetRun.signin_buttons[0].url).toBe("resultTest.run.tago.io/dashboards/info/73656d1df7cb62001163c3de?anonymousToken=00000000-7386-4535-8ccb-e400205c3051");
   });
 
   test("Update Sidebar Buttons", () => {

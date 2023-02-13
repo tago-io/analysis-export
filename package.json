@@ -47,7 +47,7 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "@tago-io/sdk": "^10.9.5",
+    "@tago-io/sdk": "^10.10.0",
     "async": "3.2.4",
     "axios": "1.2.0",
     "lodash": "4.17.21",

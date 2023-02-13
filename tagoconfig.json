@@ -1,0 +1,16 @@
+{
+  "analysisPath": "./src/",
+  "buildPath": "./build",
+    "tago": {
+        "analysisList": [
+            {
+                "fileName": "startAnalysis.ts",
+                "name": "Export Analysis",
+                "id": "63e6980e8cba660009ceafbe"
+            }
+        ],
+        "id": "5bbcb03b667d7a002e56664b",
+        "profileName": "TagoIO",
+        "email": "tago@tago.io"
+    }
+}

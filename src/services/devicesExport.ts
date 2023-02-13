@@ -1,10 +1,9 @@
 import { Account, Device, Utils } from "@tago-io/sdk";
-import { IExportHolder } from "../exportTypes";
-import filterExport from "../lib/filterExport";
-import replaceObj from "../lib/replaceObj";
-import config from "../config";
 
-async function deviceExport(account: Account, import_account: Account, export_holder: IExportHolder) {
+import { IExport, IExportHolder } from "../exportTypes";
+import replaceObj from "../lib/replaceObj";
+
+async function deviceExport(account: Account, import_account: Account, export_holder: IExportHolder, config: IExport) {
   console.info("Exporting devices: started");
 
   const list = await account.devices.list({
@@ -18,7 +17,7 @@ async function deviceExport(account: Account, import_account: Account, export_ho
     filter: { tags: [{ key: "export_id" }] },
   });
 
-  for (const { id: device_id, tags: device_tags, name } of list) {
+  for (const { id: device_id, name } of list) {
     console.info(`Exporting devices ${name}`);
     const device = await account.devices.info(device_id);
 
@@ -34,16 +33,16 @@ async function deviceExport(account: Account, import_account: Account, export_ho
     if (!target_id) {
       ({ device_id: target_id, token: new_token } = await import_account.devices.create(new_device));
 
-      if (config.data && config.data.length) {
-        const device = new Device({ token: new_token });
+      if (config.data && config.data.length > 0) {
+        const device = new Device({ token: new_token, region: "usa-1" });
         const old_device = new Device({ token });
 
         const data = await old_device.getData({
           variables: config.data,
           qty: 9999,
         });
-        if (data.length) {
-          device.sendData(data);
+        if (data.length > 0) {
+          device.sendData(data).catch(console.error);
         }
       }
     } else {
@@ -64,4 +63,4 @@ async function deviceExport(account: Account, import_account: Account, export_ho
   return export_holder;
 }
 
-export default deviceExport;
+export { deviceExport };

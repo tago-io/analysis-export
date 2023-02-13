@@ -1,6 +1,7 @@
 import zlib from "zlib";
 import { Account } from "@tago-io/sdk";
 import axios from "axios";
+
 import { IExportHolder } from "../exportTypes";
 import replaceObj from "../lib/replaceObj";
 
@@ -11,11 +12,11 @@ async function analysisExport(account: Account, import_account: Account, export_
   const import_list = await import_account.analysis.list({ amount: 99, fields: ["id", "tags"], filter: { tags: [{ key: "export_id" }] } });
 
   for (const { id: analysis_id, name } of list) {
-    console.info(`Exporting dashboard ${name}...`);
+    console.info(`Exporting analysis ${name}...`);
     const analysis = await account.analysis.info(analysis_id);
-    const export_id = analysis.tags.find((tag) => tag.key === "export_id")?.value;
+    const export_id = analysis.tags?.find((tag) => tag.key === "export_id")?.value;
 
-    let { id: target_id } = import_list.find((analysis) => analysis.tags.find((tag) => tag.key === "export_id" && tag.value == export_id)) || { id: null };
+    let { id: target_id } = import_list.find((analysis) => analysis.tags?.find((tag) => tag.key === "export_id" && tag.value == export_id)) || { id: null };
 
     const new_analysis = replaceObj(analysis, { ...export_holder.devices, ...export_holder.tokens });
     if (!target_id) {
@@ -44,4 +45,4 @@ async function analysisExport(account: Account, import_account: Account, export_
   return export_holder;
 }
 
-export default analysisExport;
+export { analysisExport };
