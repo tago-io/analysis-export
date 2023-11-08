@@ -1,14 +1,15 @@
 import { Account } from "@tago-io/sdk";
+
 import config from "./config";
 import { EntityType, IExportHolder } from "./exportTypes";
-import accessExport from "./services/accessExport";
+import { accessExport } from "./services/accessExport";
 import actionsExport from "./services/actionsExport";
-import analysisExport from "./services/analysisExport";
+import { analysisExport } from "./services/analysisExport";
 import collectIDs from "./services/collectIDs";
 import dashboardExport from "./services/dashboardsExport";
-import deviceExport from "./services/devicesExport";
+import { deviceExport } from "./services/devicesExport";
 import dictionaryExport from "./services/dictionaryExport";
-import runButtonsExport from "./services/runButtonsExport";
+import { runButtonsExport } from "./services/runButtonsExport";
 
 const IMPORT_ORDER: EntityType = ["devices", "analysis", "dashboards", "accessManagement", "run_buttons", "actions", "dictionaries"];
 
@@ -30,14 +31,16 @@ async function startImport() {
 
   if (import_rule.includes("run_buttons")) {
     const run = await import_account.run.info();
-    if (!run || !run.name) throw "Exported account doesn't have RUN enabled. Not possible to import RUN Buttons.";
+    if (!run || !run.name) {
+      throw "Exported account doesn't have RUN enabled. Not possible to import RUN Buttons.";
+    }
   }
 
   const idCollection: EntityType = [];
   for (const entity of import_rule) {
     switch (entity) {
       case "devices":
-        export_holder = await deviceExport(account, import_account, export_holder);
+        export_holder = await deviceExport(account, import_account, export_holder, config);
         idCollection.push("devices");
         break;
       case "dashboards":

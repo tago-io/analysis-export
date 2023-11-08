@@ -16,7 +16,6 @@ async function startImport() {
         console.info("Cleaning Devices");
         const device_list = await import_account.devices.list({ amount: 999, fields: ["id", "bucket"] });
         await Promise.all(device_list.map(({ id }) => import_account.devices.delete(id)));
-        await Promise.all(device_list.map(({ bucket }) => import_account.buckets.delete(bucket)));
         break;
       case "dictionaries":
         console.info("Cleaning Dashboards");

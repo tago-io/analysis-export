@@ -4,8 +4,9 @@
     "noImplicitAny": false,
     "module": "commonjs",
     "target": "ES2019",
-    "lib": ["ES2019"],
+    "lib": ["ES2022"],
     "allowJs": true,
+    "resolveJsonModule": true,
     "moduleResolution": "node",
     "esModuleInterop": true
   }
