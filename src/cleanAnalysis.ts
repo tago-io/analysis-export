@@ -1,9 +1,10 @@
 import { Account, Analysis, Utils } from "@tago-io/sdk";
 import { Data } from "@tago-io/sdk/out/common/common.types";
 import { TagoContext } from "@tago-io/sdk/out/modules/Analysis/analysis.types";
+
 import { EntityType, IExport } from "./exportTypes";
 import auditLogSetup from "./lib/auditLogSetup";
-import validation from "./lib/validation";
+import { initializeValidation } from "./lib/validation";
 
 const IMPORT_ORDER: EntityType = ["devices", "dictionaries", "accessManagement", "run_buttons", "analysis", "actions", "dictionaries", "dashboards"];
 
@@ -40,7 +41,7 @@ async function startCleaner(context: TagoContext, scope: Data[]) {
   }
   const main_account = new Account({ token: environment.account_token });
   const config_dev = await Utils.getDevice(main_account, scope[0].device);
-  const validate = validation("cleaner_validation", config_dev);
+  const validate = initializeValidation("cleaner_validation", config_dev);
 
   const target_token = scope.find((x) => x.variable === "cleaner_target_token");
   const entities = scope.find((x) => x.variable === "cleaner_entity_list" && x.metadata?.sentValues);

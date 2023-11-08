@@ -1,11 +1,12 @@
+import axios from "axios";
+
 import { Account, Analysis, Utils } from "@tago-io/sdk";
 import { Data } from "@tago-io/sdk/out/common/common.types";
 import { TagoContext } from "@tago-io/sdk/out/modules/Analysis/analysis.types";
-import axios from "axios";
 
 import { EntityType, IExport, IExportHolder } from "./exportTypes";
 import auditLogSetup from "./lib/auditLogSetup";
-import validation from "./lib/validation";
+import { initializeValidation } from "./lib/validation";
 import { accessExport } from "./services/accessExport";
 import actionsExport from "./services/actionsExport";
 import { analysisExport } from "./services/analysisExport";
@@ -65,7 +66,7 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
   const main_account = new Account({ token: environment.account_token });
 
   const config_dev = await Utils.getDevice(main_account, scope[0].device);
-  const validate = validation("export_validation", config_dev);
+  const validate = initializeValidation("export_validation", config_dev);
 
   const export_token = scope.find((x) => x.variable === "export_token");
   const target_token = scope.find((x) => x.variable === "target_token");
@@ -102,7 +103,7 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
   }
 
   if (export_tag?.value) {
-    config.export_tag = export_tag?.value as string;
+    config.export_tag = (export_tag?.value as string) || "export_id";
   }
 
   const import_rule = IMPORT_ORDER.filter((entity) => config.entities.includes(entity));
@@ -209,6 +210,4 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
   console.info("====Exporting ended with success====");
 }
 
-export default new Analysis(startImport, {
-  token: "f16369eb-5a59-4f9d-919b-0a5bc63fc7da",
-});
+Analysis.use(startImport, { token: process.env.T_ANALYSIS_TOKEN });

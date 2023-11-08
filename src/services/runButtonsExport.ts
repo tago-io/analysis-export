@@ -45,6 +45,7 @@ async function runButtonsExport(account: Account, import_account: Account, expor
   console.info("Run Buttons: started");
 
   const runInfo = await account.run.info();
+
   const targetRunInfo = await import_account.run.info();
 
   export_holder.dashboards[runInfo.url] = targetRunInfo.url;
@@ -59,10 +60,19 @@ async function runButtonsExport(account: Account, import_account: Account, expor
     targetRunInfo.email_templates[template_name] = email_obj;
   }
 
-  // @ts-expect-error
-  delete targetRunInfo.created_at;
+  const fieldsToEdit: any = {
+    // @ts-expect-error SDK doesn't have custom fields property yet
+    custom_fields: targetRunInfo.custom_fields,
+    signin_buttons: targetRunInfo.signin_buttons,
+    email_templates: targetRunInfo.email_templates,
+    sidebar_buttons: targetRunInfo.sidebar_buttons,
+  };
 
-  await import_account.run.edit(targetRunInfo).catch((error) => {
+  if (!targetRunInfo.dictionary) {
+    fieldsToEdit.dictionary = runInfo.dictionary;
+  }
+
+  await import_account.run.edit(fieldsToEdit).catch((error) => {
     console.dir(JSON.stringify(error, null, 5));
     throw error;
   });
