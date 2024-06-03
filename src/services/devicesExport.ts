@@ -41,6 +41,15 @@ async function deviceExport(account: Account, import_account: Account, export_ho
           variables: config.data,
           qty: 9999,
         });
+
+        console.log({
+          variables: config.data,
+          qty: 9999,
+        });
+
+        console.log(device.info.name);
+        console.log(data);
+
         if (data.length > 0) {
           device.sendData(data).catch(console.error);
         }

@@ -15,7 +15,7 @@ const config: IExport = {
   // Entities that will be copied from the application.
   // entities: ["dictionaries"],
   entities: ["devices", "analysis", "dashboards", "accessManagement", "run_buttons", "actions", "dictionaries"],
-  data: ["list_devtype_id"],
+  data: ["list_devtype_id", "alert_settings"], // added alert_settings for the alert feature in RTLS Marker kickstarter
 
   // Account that entities will be copied from.
   export: {
