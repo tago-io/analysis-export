@@ -45,15 +45,10 @@ const config: IExport = {
 
 const IMPORT_ORDER: EntityType = ["devices", "analysis", "dashboards", "accessManagement", "run_buttons", "actions", "dictionaries"];
 
-async function sendNotification(token: string, message: string) {
-  axios({
-    method: "POST",
-    url: "https://api.tago.io/notification",
-    data: {
-      title: "Importing application",
-      message,
-    },
-    headers: { Authorization: config.import.token },
+async function sendNotification(account: Account, message: string) {
+  await account.notifications.create({
+    title: "Importing application",
+    message,
   });
 }
 
@@ -147,7 +142,7 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
 
   const auditlog = auditLogSetup(account, config_dev, "export_log");
   auditlog(`Starting export to: ${import_acc_info.name}`);
-  sendNotification(config.import.token, "Starting import process. This typically takes 3-5 minutes.");
+  sendNotification(import_account, "Starting import process. This typically takes 3-5 minutes.");
 
   try {
     validate("Importing selected resources... Please wait while we set up your application.", "warning");
@@ -221,11 +216,11 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
     }
   } catch (e) {
     auditlog(`Error while exporting: ${e}`);
-    sendNotification(config.import.token, "Import failed. Please check your profile token and try again.");
+    sendNotification(import_account, "Import failed. Please check your profile token and try again.");
     return Promise.reject(await validate(e, "danger"));
   }
 
-  sendNotification(config.import.token, "Import successful! Your Kickstarter application is ready to use.");
+  sendNotification(import_account, "Import successful! Your Kickstarter application is ready to use.");
 
   auditlog(`Export finished with success for: ${import_acc_info.name}`);
   validate("The application was succesfully imported!", "success");
