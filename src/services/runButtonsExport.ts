@@ -1,5 +1,5 @@
 import { Account } from "@tago-io/sdk";
-import { RunInfo } from "@tago-io/sdk/out/modules/Account/run.types";
+import { RunInfo } from "@tago-io/sdk/lib/types";
 
 import { IExportHolder } from "../exportTypes";
 import replaceObj from "../lib/replaceObj";
