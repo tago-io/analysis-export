@@ -1,6 +1,7 @@
-import { Account, Device, Utils } from "@tago-io/sdk";
-import { DeviceListItem } from "@tago-io/sdk/out/modules/Account/devices.types";
-import { Entity, EntityType, IExportHolder } from "../exportTypes";
+import { Account, Utils } from "@tago-io/sdk";
+import { DeviceListItem } from "@tago-io/sdk/lib/types";
+
+import { Entity, IExportHolder } from "../exportTypes";
 
 function getExportHolder(list: any[], import_list: any[], entity: Entity, export_holder: IExportHolder) {
   for (const item of list) {
@@ -41,12 +42,15 @@ async function getDeviceTokens(list: (DeviceListItem & { token?: string })[], ac
 }
 
 async function collectIDs(account: Account, import_account: Account, entity: Entity, export_holder: IExportHolder) {
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'list' does not exist on type 'Account'.
   let list = await account[entity].list({
     page: 1,
     amount: 99,
     fields: ["id", "tags"] as any,
     filter: { tags: [{ key: "export_id" }] },
   });
+
+  // @ts-expect-error ts-migrate(2339) FIXME: Property 'list' does not exist on type 'Account'.
   let import_list = await import_account[entity].list({
     page: 1,
     amount: 99,

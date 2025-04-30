@@ -1,6 +1,7 @@
-import { Account } from "@tago-io/sdk";
-import { DashboardInfo, WidgetInfo } from "@tago-io/sdk/out/modules/Account/dashboards.types";
 import { queue } from "async";
+
+import { Account } from "@tago-io/sdk";
+import { DashboardInfo, WidgetInfo } from "@tago-io/sdk/lib/types";
 
 import { IExportHolder } from "../exportTypes";
 import replaceObj from "../lib/replaceObj";
@@ -64,7 +65,7 @@ async function removeAllWidgets(import_account: Account, dashboard: DashboardInf
 
   const widgetQueue = queue(async (widget_id: string) => {
     await import_account.dashboards.widgets.delete(dashboard.id, widget_id).catch(() => null);
-    await new Promise((resolve) => setTimeout(resolve, 50)); // sleep
+    await new Promise((resolve) => setTimeout(resolve, 100)); // sleep
     return;
   }, 5);
 

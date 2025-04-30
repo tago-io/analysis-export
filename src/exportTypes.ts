@@ -16,7 +16,7 @@ interface IExport {
   export_tag: string;
   entities: EntityType;
   dictionary?: string[];
-  data?: string[],
+  data?: string[];
   export: {
     token: string;
   };

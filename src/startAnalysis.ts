@@ -1,8 +1,7 @@
 import axios from "axios";
 
 import { Account, Analysis, Utils } from "@tago-io/sdk";
-import { Data } from "@tago-io/sdk/out/common/common.types";
-import { TagoContext } from "@tago-io/sdk/out/modules/Analysis/analysis.types";
+import { Data, TagoContext } from "@tago-io/sdk/lib/types";
 
 import { EntityType, IExport, IExportHolder } from "./exportTypes";
 import auditLogSetup from "./lib/auditLogSetup";
@@ -11,10 +10,16 @@ import { accessExport } from "./services/accessExport";
 import actionsExport from "./services/actionsExport";
 import { analysisExport } from "./services/analysisExport";
 import collectIDs from "./services/collectIDs";
+import { createSecret } from "./services/createSecret";
 import dashboardExport from "./services/dashboardsExport";
 import { deviceExport } from "./services/devicesExport";
 import dictionaryExport from "./services/dictionaryExport";
 import { runButtonsExport } from "./services/runButtonsExport";
+
+const applications = {
+  default: "19c43a65-dd50-49a7-9535-09038c2934d8",
+  rtls: "2a4889a4-7c89-4278-b2b9-6fcd30eabd6d",
+};
 
 const config: IExport = {
   // Export tag with unique ID's. Without tag bellow, entity will not be copied or updated.
@@ -66,15 +71,16 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
   const main_account = new Account({ token: environment.account_token });
 
   const config_dev = await Utils.getDevice(main_account, scope[0].device);
-  const validate = initializeValidation("export_validation", config_dev);
+  const validate = initializeValidation("export_validation", config_dev, { show_markdown: true });
 
   const export_token = scope.find((x) => x.variable === "export_token");
   const target_token = scope.find((x) => x.variable === "target_token");
   const entities = scope.find((x) => x.variable === "entities" && x.metadata?.sentValues);
   const data_list = scope.find((x) => x.variable === "data_list");
   const export_tag = scope.find((x) => x.variable === "export_tag");
+  const region = scope.find((x) => x.variable === "target_region");
 
-  config.export.token = export_token.value as string;
+  config.export.token = applications[export_token.value as string];
   config.import.token = target_token.value as string;
 
   if (!config.export.token) {
@@ -84,13 +90,19 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
   }
 
   if (!config.import.token) {
-    return Promise.reject(await validate("Missing account token field", "danger"));
+    return Promise.reject(await validate("Missing profile-token field", "danger"));
   } else if (config.import.token.length !== 36) {
-    return Promise.reject(await validate('Invalid "account token".', "danger"));
+    return Promise.reject(await validate("Profile token invalid. Please check your token and try again.", "danger"));
+  }
+
+  if (!region?.value) {
+    return Promise.reject(await validate("Missing target region field", "danger"));
+  } else if (region.value !== "us-e1" && region.value !== "eu-w1") {
+    return Promise.reject(await validate("Invalid target region field", "danger"));
   }
 
   const account = new Account({ token: config.export.token });
-  const import_account = new Account({ token: config.import.token });
+  const import_account = new Account({ token: config.import.token, region: region?.value });
 
   if (entities?.metadata?.sentValues) {
     const values = entities.metadata.sentValues.map((x) => x.value);
@@ -106,7 +118,7 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
     config.export_tag = (export_tag?.value as string) || "export_id";
   }
 
-  const import_rule = IMPORT_ORDER.filter((entity) => config.entities.includes(entity));
+  const import_rule = IMPORT_ORDER.filter((entity) => config.entities.indexOf(entity) !== -1);
   let export_holder: IExportHolder = {
     devices: {},
     analysis: {},
@@ -118,24 +130,29 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
 
   console.log(import_rule);
 
-  if (import_rule.includes("run_buttons")) {
-    const run = await import_account.run.info();
-    if (!run || !run.name) {
-      return Promise.reject(await validate("The account doesn't have RUN enabled. Not possible to import RUN Buttons.", "danger"));
-    }
+  const run = await import_account.run.info();
+  if (!run || !run.name) {
+    return Promise.reject(
+      await validate(
+        `Your profile needs to have TagoRUN enabled. Visit this [link](https://tago.${region?.value}.io/run), click on \`Start Now\` and then save the change to enable your TagoRUN.`,
+        "danger"
+      )
+    );
   }
 
   const import_acc_info = await import_account.info();
   if (import_acc_info.plan === "free") {
-    return Promise.reject(await validate("The account is free, can't import the application.", "danger"));
+    return Promise.reject(await validate("This application requires a paid plan. Upgrade your account to import these resources.", "danger"));
   }
 
   const auditlog = auditLogSetup(account, config_dev, "export_log");
   auditlog(`Starting export to: ${import_acc_info.name}`);
-  sendNotification(config.import.token, "Starting the import proccess. Please await, it can take up to 5 minutes.");
+  sendNotification(config.import.token, "Starting import process. This typically takes 3-5 minutes.");
 
   try {
-    validate("Exporting the application, this proccess can take several minutes...", "warning");
+    validate("Importing selected resources... Please wait while we set up your application.", "warning");
+
+    await createSecret(config.import.token);
 
     const idCollection: EntityType = [];
     for (const entity of import_rule) {
@@ -155,17 +172,6 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
           }
           export_holder = await dashboardExport(account, import_account, export_holder);
           idCollection.push("dashboards");
-          break;
-        case "accessManagement":
-          if (!idCollection.includes("devices")) {
-            idCollection.push("devices");
-            export_holder = await collectIDs(account, import_account, "devices", export_holder);
-          }
-          if (!idCollection.includes("dashboards")) {
-            idCollection.push("dashboards");
-            export_holder = await collectIDs(account, import_account, "dashboards", export_holder);
-          }
-          export_holder = await accessExport(account, import_account, export_holder);
           break;
         case "analysis":
           if (!idCollection.includes("devices")) {
@@ -194,19 +200,35 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
           export_holder = await runButtonsExport(account, import_account, export_holder);
           idCollection.push("run_buttons");
           break;
+        case "accessManagement":
+          if (!idCollection.includes("devices")) {
+            idCollection.push("devices");
+            export_holder = await collectIDs(account, import_account, "devices", export_holder);
+          }
+          if (!idCollection.includes("dashboards")) {
+            idCollection.push("dashboards");
+            export_holder = await collectIDs(account, import_account, "dashboards", export_holder);
+          }
+          if (!idCollection.includes("analysis")) {
+            idCollection.push("analysis");
+            export_holder = await collectIDs(account, import_account, "analysis", export_holder);
+          }
+          export_holder = await accessExport(account, import_account, export_holder);
+          break;
         default:
           break;
       }
     }
   } catch (e) {
     auditlog(`Error while exporting: ${e}`);
+    sendNotification(config.import.token, "Import failed. Please check your profile token and try again.");
     return Promise.reject(await validate(e, "danger"));
   }
 
-  sendNotification(config.import.token, "The application was succesfully imported.");
+  sendNotification(config.import.token, "Import successful! Your Kickstarter application is ready to use.");
 
   auditlog(`Export finished with success for: ${import_acc_info.name}`);
-  validate("Application succesfully exported!", "success");
+  validate("The application was succesfully imported!", "success");
   console.info("====Exporting ended with success====");
 }
 
