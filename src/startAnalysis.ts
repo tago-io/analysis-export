@@ -152,7 +152,7 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
     validate("Importing selected resources... Please wait while we set up your application.", "warning");
 
     try {
-      await createSecret(config.import.token);
+      await createSecret(config.import.token, region?.value);
     } catch (e) {
       throw new Error(`Error in createSecret: ${e}`);
     }
@@ -261,7 +261,7 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
   } catch (e) {
     auditlog(`Error while exporting: ${e}`);
     sendNotification(import_account, "Import failed. Please check your profile token and try again.");
-    return Promise.reject(await validate(e, "danger"));
+    return Promise.reject(await validate(e.message || "Unknown error", "danger"));
   }
 
   sendNotification(import_account, "Import successful! Your Kickstarter application is ready to use.");
