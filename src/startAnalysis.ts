@@ -46,10 +46,14 @@ const config: IExport = {
 const IMPORT_ORDER: EntityType = ["devices", "analysis", "dashboards", "accessManagement", "run_buttons", "actions", "dictionaries"];
 
 async function sendNotification(account: Account, message: string) {
-  await account.notifications.create({
-    title: "Importing application",
-    message,
-  });
+  try {
+    await account.notifications.create({
+      title: "Importing application",
+      message,
+    });
+  } catch (e) {
+    throw new Error(`Error in sendNotification: ${e}`);
+  }
 }
 
 async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
@@ -147,71 +151,111 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
   try {
     validate("Importing selected resources... Please wait while we set up your application.", "warning");
 
-    await createSecret(config.import.token);
+    try {
+      await createSecret(config.import.token);
+    } catch (e) {
+      throw new Error(`Error in createSecret: ${e}`);
+    }
 
     const idCollection: EntityType = [];
     for (const entity of import_rule) {
-      switch (entity) {
-        case "devices":
-          export_holder = await deviceExport(account, import_account, export_holder, config);
-          idCollection.push("devices");
-          break;
-        case "dashboards":
-          if (!idCollection.includes("analysis")) {
-            idCollection.push("analysis");
-            export_holder = await collectIDs(account, import_account, "analysis", export_holder);
-          }
-          if (!idCollection.includes("devices")) {
+      try {
+        switch (entity) {
+          case "devices":
+            export_holder = await deviceExport(account, import_account, export_holder, config);
             idCollection.push("devices");
-            export_holder = await collectIDs(account, import_account, "devices", export_holder);
-          }
-          export_holder = await dashboardExport(account, import_account, export_holder);
-          idCollection.push("dashboards");
-          break;
-        case "analysis":
-          if (!idCollection.includes("devices")) {
-            idCollection.push("devices");
-            export_holder = await collectIDs(account, import_account, "devices", export_holder);
-          }
-          export_holder = await analysisExport(account, import_account, export_holder);
-          idCollection.push("analysis");
-          break;
-        case "actions":
-          if (!idCollection.includes("devices")) {
-            idCollection.push("devices");
-            export_holder = await collectIDs(account, import_account, "devices", export_holder);
-          }
-          export_holder = await actionsExport(account, import_account, export_holder);
-          idCollection.push("actions");
-          break;
-        case "dictionaries":
-          export_holder = await dictionaryExport(account, import_account, export_holder);
-          break;
-        case "run_buttons":
-          if (!idCollection.includes("dashboards")) {
+            break;
+          case "dashboards":
+            if (!idCollection.includes("analysis")) {
+              idCollection.push("analysis");
+              try {
+                export_holder = await collectIDs(account, import_account, "analysis", export_holder);
+              } catch (e) {
+                throw new Error(`Error in collectIDs (analysis for dashboards): ${e}`);
+              }
+            }
+            if (!idCollection.includes("devices")) {
+              idCollection.push("devices");
+              try {
+                export_holder = await collectIDs(account, import_account, "devices", export_holder);
+              } catch (e) {
+                throw new Error(`Error in collectIDs (devices for dashboards): ${e}`);
+              }
+            }
+            export_holder = await dashboardExport(account, import_account, export_holder);
             idCollection.push("dashboards");
-            export_holder = await collectIDs(account, import_account, "dashboards", export_holder);
-          }
-          export_holder = await runButtonsExport(account, import_account, export_holder);
-          idCollection.push("run_buttons");
-          break;
-        case "accessManagement":
-          if (!idCollection.includes("devices")) {
-            idCollection.push("devices");
-            export_holder = await collectIDs(account, import_account, "devices", export_holder);
-          }
-          if (!idCollection.includes("dashboards")) {
-            idCollection.push("dashboards");
-            export_holder = await collectIDs(account, import_account, "dashboards", export_holder);
-          }
-          if (!idCollection.includes("analysis")) {
+            break;
+          case "analysis":
+            if (!idCollection.includes("devices")) {
+              idCollection.push("devices");
+              try {
+                export_holder = await collectIDs(account, import_account, "devices", export_holder);
+              } catch (e) {
+                throw new Error(`Error in collectIDs (devices for analysis): ${e}`);
+              }
+            }
+            export_holder = await analysisExport(account, import_account, export_holder);
             idCollection.push("analysis");
-            export_holder = await collectIDs(account, import_account, "analysis", export_holder);
-          }
-          export_holder = await accessExport(account, import_account, export_holder);
-          break;
-        default:
-          break;
+            break;
+          case "actions":
+            if (!idCollection.includes("devices")) {
+              idCollection.push("devices");
+              try {
+                export_holder = await collectIDs(account, import_account, "devices", export_holder);
+              } catch (e) {
+                throw new Error(`Error in collectIDs (devices for actions): ${e}`);
+              }
+            }
+            export_holder = await actionsExport(account, import_account, export_holder);
+            idCollection.push("actions");
+            break;
+          case "dictionaries":
+            export_holder = await dictionaryExport(account, import_account, export_holder);
+            break;
+          case "run_buttons":
+            if (!idCollection.includes("dashboards")) {
+              idCollection.push("dashboards");
+              try {
+                export_holder = await collectIDs(account, import_account, "dashboards", export_holder);
+              } catch (e) {
+                throw new Error(`Error in collectIDs (dashboards for run_buttons): ${e}`);
+              }
+            }
+            export_holder = await runButtonsExport(account, import_account, export_holder);
+            idCollection.push("run_buttons");
+            break;
+          case "accessManagement":
+            if (!idCollection.includes("devices")) {
+              idCollection.push("devices");
+              try {
+                export_holder = await collectIDs(account, import_account, "devices", export_holder);
+              } catch (e) {
+                throw new Error(`Error in collectIDs (devices for accessManagement): ${e}`);
+              }
+            }
+            if (!idCollection.includes("dashboards")) {
+              idCollection.push("dashboards");
+              try {
+                export_holder = await collectIDs(account, import_account, "dashboards", export_holder);
+              } catch (e) {
+                throw new Error(`Error in collectIDs (dashboards for accessManagement): ${e}`);
+              }
+            }
+            if (!idCollection.includes("analysis")) {
+              idCollection.push("analysis");
+              try {
+                export_holder = await collectIDs(account, import_account, "analysis", export_holder);
+              } catch (e) {
+                throw new Error(`Error in collectIDs (analysis for accessManagement): ${e}`);
+              }
+            }
+            export_holder = await accessExport(account, import_account, export_holder);
+            break;
+          default:
+            break;
+        }
+      } catch (e) {
+        throw new Error(`Error while processing entity "${entity}": ${e}`);
       }
     }
   } catch (e) {
