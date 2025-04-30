@@ -61,15 +61,6 @@ npm run build
 - `npm run start` — Run the start script with ts-node-dev.
 - `npm run build` — Build the script for TagoIO Analysis.
 
-## Configuration
-
-The script can be configured to select which entities to import and which profiles to use.  
-Edit the `src/startAnalysis.ts` or use the environment/context variables in TagoIO Analysis to set:
-
-- Source and target profile tokens
-- Entities to import (devices, dashboards, analysis, etc.)
-- Data variables to transfer
-
 ## Notes
 
 - The import process will fail if the target profile does not have TagoRUN enabled or is on a free plan.
