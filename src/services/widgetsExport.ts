@@ -1,10 +1,21 @@
 import { queue } from "async";
 
-import { Account } from "@tago-io/sdk";
-import { DashboardInfo, WidgetInfo } from "@tago-io/sdk/lib/types";
+import { Account, DashboardInfo, WidgetInfo } from "@tago-io/sdk";
 
 import { IExportHolder } from "../exportTypes";
 import replaceObj from "../lib/replaceObj";
+
+/**
+ * Orders widgets so the ones in hidden tabs are created first. A header button on a visible widget
+ * references a hidden widget by id, and that reference is only remapped (via widget_holder) if the
+ * hidden widget already exists when the referencing widget is created. A tab is hidden when its
+ * `type` is "hidden".
+ */
+function sortHiddenWidgetsFirst(arrangement: any[], tabs: any[]) {
+  const hiddenTabs = new Set((tabs || []).filter((tab: any) => tab.type === "hidden").map((tab: any) => tab.key));
+  const isHidden = (item: any) => hiddenTabs.has(item.tab);
+  return [...arrangement].sort((a, b) => Number(isHidden(b)) - Number(isHidden(a)));
+}
 
 async function insertWidgets(account: Account, import_account: Account, dashboard: DashboardInfo, target: DashboardInfo, export_holder: IExportHolder) {
   const widget_ids = dashboard.arrangement?.map((x) => x.widget_id);
@@ -25,11 +36,10 @@ async function insertWidgets(account: Account, import_account: Account, dashboar
 
   await newWidgetQueue.drain();
 
-  const hidden_tabs = new Set(dashboard.tabs.filter((tab: any) => !tab.hidden).map((tab: any) => tab.key));
   if (!dashboard.arrangement) {
     return;
   }
-  const arrangement = dashboard.arrangement.sort((a) => (hidden_tabs.has(a.tab) ? 1 : -1));
+  const arrangement = sortHiddenWidgetsFirst(dashboard.arrangement, dashboard.tabs);
 
   const new_arrangement: any = [];
   const widget_holder: { [key: string]: string } = {};
@@ -77,4 +87,4 @@ async function removeAllWidgets(import_account: Account, dashboard: DashboardInf
   await widgetQueue.drain();
 }
 
-export { removeAllWidgets, insertWidgets };
+export { removeAllWidgets, insertWidgets, sortHiddenWidgetsFirst };
