@@ -1,7 +1,6 @@
 import { queue } from "async";
 
-import { Account } from "@tago-io/sdk";
-import { DictionaryInfo } from "@tago-io/sdk/lib/types";
+import { Account, DictionaryInfo } from "@tago-io/sdk";
 
 import { IExportHolder } from "../exportTypes";
 

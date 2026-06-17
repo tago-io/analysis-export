@@ -3,7 +3,7 @@
 // * This file is all logics of parseit (example script).
 // ? ====================================================================================
 
-import { DataToSend } from "@tago-io/sdk/lib/types";
+import { DataToSend } from "@tago-io/sdk";
 
 interface GenericBody {
   [index: string]: any;

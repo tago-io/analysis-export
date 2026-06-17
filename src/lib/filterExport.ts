@@ -1,4 +1,4 @@
-import { TagsObj } from "@tago-io/sdk/out/common/common.types";
+import { TagsObj } from "@tago-io/sdk";
 
 function filterExport(dashboard: { [key: string]: any }) {
   const export_tag = dashboard.tags.find((tag: TagsObj) => tag.key === "export_id");
