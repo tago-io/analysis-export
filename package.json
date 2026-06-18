@@ -13,7 +13,10 @@
     "build": "analysis-builder src/startAnalysis.ts build/analysis.tago.js"
   },
   "jest": {
-    "preset": "ts-jest"
+    "preset": "ts-jest",
+    "moduleNameMapper": {
+      "^nanoid$": "<rootDir>/test/nanoidMock.js"
+    }
   },
   "author": "",
   "license": "ISC",
@@ -47,9 +50,8 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@tago-io/sdk": "^11.3.8",
+    "@tago-io/sdk": "^12.2.3",
     "async": "3.2.5",
-    "axios": "1.6.5",
     "lodash": "4.17.21",
     "luxon": "^3.4.4"
   }

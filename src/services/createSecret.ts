@@ -1,5 +1,4 @@
-import { Resources } from "@tago-io/sdk";
-import { Regions } from "@tago-io/sdk/lib/regions";
+import { Regions, Resources } from "@tago-io/sdk";
 
 async function createSecret(token: string, region: Regions) {
   const resource = new Resources({ token, region });
@@ -10,6 +9,7 @@ async function createSecret(token: string, region: Regions) {
   }
 
   await resource.secrets.create({ key: "ACCOUNT_TOKEN", value: token, tags: [{ key: "account_token", value: "true" }] });
+  await resource.secrets.create({ key: "SENDGRID_API_KEY", value: "<SENDGRID_API_KEY>", tags: [{ key: "sendgrid_credentials", value: "true" }] });
   return "Secret created";
 }
 

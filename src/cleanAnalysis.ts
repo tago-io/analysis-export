@@ -1,6 +1,4 @@
-import { Account, Analysis, Utils } from "@tago-io/sdk";
-import { Data } from "@tago-io/sdk/out/common/common.types";
-import { TagoContext } from "@tago-io/sdk/out/modules/Analysis/analysis.types";
+import { Account, Analysis, Data, TagoContext, Utils } from "@tago-io/sdk";
 
 import { EntityType, IExport } from "./exportTypes";
 import auditLogSetup from "./lib/auditLogSetup";
@@ -76,7 +74,7 @@ async function startCleaner(context: TagoContext, scope: Data[]) {
         const device_list = await import_account.devices.list({ amount: 999, fields: ["id", "bucket"], filter: { tags: [{ key: config.export_tag }] } });
         auditlog(`Cleaning Devices: ${device_list.length} found.`);
         await Promise.all(device_list.map(({ id }) => import_account.devices.delete(id)));
-        await Promise.all(device_list.map(({ bucket }) => import_account.buckets.delete(bucket)));
+        await Promise.all(device_list.map(({ bucket }) => import_account.buckets.devices.delete(bucket)));
         break;
       case "dashboards":
         console.info("Cleaning Dashboards");

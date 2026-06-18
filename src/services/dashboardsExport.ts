@@ -1,7 +1,6 @@
 import { queue } from "async";
 
-import { Account } from "@tago-io/sdk";
-import { DashboardInfo } from "@tago-io/sdk/lib/types";
+import { Account, DashboardInfo } from "@tago-io/sdk";
 
 import { IExportHolder } from "../exportTypes";
 import { insertWidgets, removeAllWidgets } from "./widgetsExport";

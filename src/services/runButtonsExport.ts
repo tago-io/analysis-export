@@ -1,5 +1,4 @@
-import { Account } from "@tago-io/sdk";
-import { RunInfo } from "@tago-io/sdk/lib/types";
+import { Account, RunInfo } from "@tago-io/sdk";
 
 import { IExportHolder } from "../exportTypes";
 import replaceObj from "../lib/replaceObj";
@@ -66,6 +65,7 @@ async function runButtonsExport(account: Account, import_account: Account, expor
     signin_buttons: targetRunInfo.signin_buttons,
     email_templates: targetRunInfo.email_templates,
     sidebar_buttons: targetRunInfo.sidebar_buttons,
+    theme: (runInfo as any).theme,
   };
 
   if (!targetRunInfo.dictionary) {
