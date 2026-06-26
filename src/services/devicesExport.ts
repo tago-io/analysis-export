@@ -2,8 +2,9 @@ import { Account, Device, Utils } from "@tago-io/sdk";
 
 import { IExport, IExportHolder } from "../exportTypes";
 import replaceObj from "../lib/replaceObj";
+import { isDefaultApp, isSettingsDevice, seedSettingsDevice } from "./settingsSeed";
 
-async function deviceExport(account: Account, import_account: Account, export_holder: IExportHolder, config: IExport) {
+async function deviceExport(account: Account, import_account: Account, export_holder: IExportHolder, config: IExport, region: "us-e1" | "eu-w1") {
   console.info("Exporting devices: started");
 
   const list = await account.devices.list({
@@ -34,7 +35,7 @@ async function deviceExport(account: Account, import_account: Account, export_ho
       ({ device_id: target_id, token: new_token } = await import_account.devices.create(new_device));
 
       if (config.data && config.data.length > 0) {
-        const device = new Device({ token: new_token, region: "us-e1" });
+        const device = new Device({ token: new_token, region } as any);
         const old_device = new Device({ token });
 
         const data = await old_device.getData({
@@ -44,6 +45,11 @@ async function deviceExport(account: Account, import_account: Account, export_ho
         if (data.length > 0) {
           device.sendData(data).catch(console.error);
         }
+      }
+
+      // Seed the default global-inactivity alert into the settings device of the Default Kickstarter.
+      if (isDefaultApp(config.export.token) && isSettingsDevice(device.tags)) {
+        await seedSettingsDevice(new_token, region).catch(console.error);
       }
     } else {
       await import_account.devices.edit(target_id, {

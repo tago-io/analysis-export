@@ -40,7 +40,7 @@ async function startImport() {
   for (const entity of import_rule) {
     switch (entity) {
       case "devices":
-        export_holder = await deviceExport(account, import_account, export_holder, config);
+        export_holder = await deviceExport(account, import_account, export_holder, config, "us-e1");
         idCollection.push("devices");
         break;
       case "dashboards":
