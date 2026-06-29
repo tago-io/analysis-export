@@ -60,8 +60,7 @@ async function runButtonsExport(account: Account, import_account: Account, expor
   }
 
   const fieldsToEdit: any = {
-    // @ts-expect-error SDK doesn't have custom fields property yet
-    custom_fields: targetRunInfo.custom_fields,
+    custom_fields: (runInfo as any).custom_fields,
     signin_buttons: targetRunInfo.signin_buttons,
     email_templates: targetRunInfo.email_templates,
     sidebar_buttons: targetRunInfo.sidebar_buttons,

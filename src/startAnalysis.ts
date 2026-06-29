@@ -1,5 +1,6 @@
 import { Account, Analysis, Data, TagoContext, Utils } from "@tago-io/sdk";
 
+import { applications } from "./applications";
 import { EntityType, IExport, IExportHolder } from "./exportTypes";
 import auditLogSetup from "./lib/auditLogSetup";
 import { initializeValidation } from "./lib/validation";
@@ -12,11 +13,6 @@ import dashboardExport from "./services/dashboardsExport";
 import { deviceExport } from "./services/devicesExport";
 import dictionaryExport from "./services/dictionaryExport";
 import { runButtonsExport } from "./services/runButtonsExport";
-
-const applications = {
-  default: "19c43a65-dd50-49a7-9535-09038c2934d8",
-  rtls: "2a4889a4-7c89-4278-b2b9-6fcd30eabd6d",
-};
 
 const config: IExport = {
   // Export tag with unique ID's. Without tag bellow, entity will not be copied or updated.
@@ -81,14 +77,10 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
 
   if (!config.export.token) {
     return Promise.reject(await validate("Missing account application token field", "danger"));
-  } else if (config.export.token.length !== 36) {
-    return Promise.reject(await validate('Invalid "account application token".', "danger"));
   }
 
   if (!config.import.token) {
     return Promise.reject(await validate("Missing profile-token field", "danger"));
-  } else if (config.import.token.length !== 36) {
-    return Promise.reject(await validate("Profile token invalid. Please check your token and try again.", "danger"));
   }
 
   if (!region?.value) {
@@ -126,8 +118,11 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
 
   console.log(import_rule);
 
-  const run = await import_account.run.info();
-  if (!run || !run.name) {
+  const run = await import_account.run.info().catch(() => null);
+  if (!run) {
+    return Promise.reject(await validate("Profile token invalid. Please check your token and try again.", "danger"));
+  }
+  if (!run.name) {
     return Promise.reject(
       await validate(
         `Your profile needs to have TagoRUN enabled. Visit this [link](https://tago.${region?.value}.io/run), click on \`Start Now\` and then save the change to enable your TagoRUN.`,
@@ -159,7 +154,7 @@ async function startImport(context: TagoContext, scope: Data[]): Promise<void> {
       try {
         switch (entity) {
           case "devices":
-            export_holder = await deviceExport(account, import_account, export_holder, config);
+            export_holder = await deviceExport(account, import_account, export_holder, config, region.value);
             idCollection.push("devices");
             break;
           case "dashboards":
